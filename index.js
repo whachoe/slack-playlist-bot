@@ -1,3 +1,8 @@
+/**
+ * This is the Slack bot part: Listens for youtube/spotify links and saves them to a file
+ * 
+ */
+
 const fs = require('fs');
 const { App } = require("@slack/bolt");
 require("dotenv").config();
@@ -6,12 +11,10 @@ require("dotenv").config();
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
-  socketMode:true, // enable to use socket mode
-  appToken: process.env.APP_TOKEN
+  appToken: process.env.APP_TOKEN,
+  socketMode:true // enable to use socket mode
 });
 
-// const youtubeRegex = /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(?:-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|live\/|v\/)?)([\w\-]+)(\S+)?$"/gi;
-// const youtubeRegex = /(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+/gi;
 const youtubeRegex = /(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch|v|embed)(?:\.php)?(?:\?.*v=|\/))([a-zA-Z0-9\_-]+)/gi;
 const spotifyRegex = /(https?:\/\/open.spotify.com\/(track|user|artist|album)\/[a-zA-Z0-9]+(\/playlist\/[a-zA-Z0-9]+|)|spotify:(track|user|artist|album):[a-zA-Z0-9]+(:playlist:[a-zA-Z0-9]+|))/gi;
 
@@ -33,6 +36,8 @@ app.message(spotifyRegex, async ({ context, say }) => {
       console.log(`Saved Spotify link: ${link}`);
     });  
 });
+
+
 
 (async () => {
   const port = 3000
