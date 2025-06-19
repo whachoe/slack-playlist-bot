@@ -6,20 +6,20 @@
 const fs = require('fs');
 const { App } = require("@slack/bolt");
 require("dotenv").config();
+require ('./variables.js');
 
 // Initializes your app with credentials
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
-  appToken: process.env.APP_TOKEN,
+  appToken: process.env.SLACK_APP_TOKEN,
   socketMode:true // enable to use socket mode
 });
 
-const youtubeRegex = /(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch|v|embed)(?:\.php)?(?:\?.*v=|\/))([a-zA-Z0-9\_-]+)/gi;
-const spotifyRegex = /(https?:\/\/open.spotify.com\/(track|user|artist|album)\/[a-zA-Z0-9]+(\/playlist\/[a-zA-Z0-9]+|)|spotify:(track|user|artist|album):[a-zA-Z0-9]+(:playlist:[a-zA-Z0-9]+|))/gi;
-
 // Listen for youtube links
 app.message(youtubeRegex, async ({ context, say }) => {
+  console.log(context);
+
   // RegExp matches are inside of context.matches
   context.matches.forEach(link => {
       fs.appendFileSync('youtube_links.txt', link + '\n');
@@ -30,6 +30,8 @@ app.message(youtubeRegex, async ({ context, say }) => {
 
 // Listen for spotify links
 app.message(spotifyRegex, async ({ context, say }) => {
+  console.log(context);
+  
   // RegExp matches are inside of context.matches
   context.matches.forEach(link => {
       fs.appendFileSync('youtube_links.txt', link + '\n');
