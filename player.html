@@ -1,0 +1,81 @@
+<html>
+  <head>
+    <title>YouTube Playlist Player</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #272727;
+        color: #f0f0f0;
+      }
+      #player-container {
+        width: 640px;
+        height: 390px;
+        float: left;
+      }
+      #playlist-container {
+        float: left;
+        margin-left: 20px;
+      }
+      #playlist-container ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      #playlist-container ul li {
+        /* margin-bottom: 10px; */
+        padding: 10px;
+      }
+      #playlist-container ul li:nth-child(odd) {
+        background-color: #474747;
+        }
+      #playlist-container ul li:nth-child(even) {
+        background-color: #676767;
+      }
+      #playlist-container ul li a {
+        text-decoration: none;
+        color: #337ab7;
+      }
+      #playlist-container ul li a:hover {
+        color: #23527c;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Techyard Slack Player</h1>
+    <div id="player-container">
+      <div id="player"></div>
+    </div>
+    <div id="playlist-container">
+      <ul><%- playlistHtml %></ul>
+    </div>
+    <script>
+      var tag = document.createElement('script');
+      var playlist = <%- JSON.stringify(playlist) %>;
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: '<%= playlist[0].videoId %>',
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+      function onPlayerStateChange(event) {
+        if (event.data === 0) { // video ended
+          var currentIndex = playlist.findIndex(video => video.videoId === player.getVideoData().video_id);
+          var nextIndex = (currentIndex + 1) % playlist.length;
+          player.loadVideoById(playlist[nextIndex].videoId);
+        }
+      }
+    </script>
+  </body>
+</html>

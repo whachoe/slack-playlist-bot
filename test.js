@@ -3,7 +3,7 @@
 const spotifyToYT = require('./spotifyToYoutube.js');
 const youtubeToSpotify = require('./youtubeToSpotify.js');
 
-// spotifyToYT.translateSpotifyToYoutube('https://open.spotify.com/track/2Ht1gsebaD2W5LWAZvYoPG?si=beff9bc0122343b8').then(yt => {
+// spotifyToYT.spotifyToYoutube('https://open.spotify.com/track/2Ht1gsebaD2W5LWAZvYoPG?si=beff9bc0122343b8').then(yt => {
 //     console.log("youtube url: ", yt);    
 // });
 

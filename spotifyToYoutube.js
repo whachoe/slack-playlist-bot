@@ -7,7 +7,6 @@ require("dotenv").config();
 const yts = require('yt-search');
 var spotifyWebApi = require('spotify-web-api-node');
 var readline = require('linebyline');
-const { exit } = require('process');
 const { youtubeRegex, spotifyRegex } = require ('./variables.js');
 
 const client_id = process.env.SPOTIFY_CLIENT_ID;
@@ -43,7 +42,7 @@ async function getAccessToken() {
  * @param {string} spotifyUrl - URL of the song on Spotify
  * @returns {string} URL of the song on YouTube
  */
-async function translateSpotifyToYoutube(spotifyUrl) {
+async function spotifyToYoutube(spotifyUrl) {
   // Now get the artist and title of the song on spotify
   await getAccessToken();
 
@@ -73,44 +72,7 @@ async function getTrackInfo(spotifyUrl) {
   return spotifyApi.getTrack(spotifyId);
 }
 
-function isSpotifyUrl(url) {
-  const spotifyTrackRegex = /.*spotify.com\/track.*/;
-  return spotifyTrackRegex.test(url);
-}
-
-function isYoutubeUrl(url) {
-
-  return youtubeRegex.test(url);
-}
-
-async function translateFile(inputfile, outputfile) {
-  await getAccessToken();
-
-  // run through the file, get the spotify tracks and translate them. save them in another file
-  rl = readline(inputfile);
-  rl.on('line', function(url, lineCount, byteCount) {
-      console.log("INPUT URL:", url);
-      url = url.trim();
-
-      if (isSpotifyUrl(url)) {
-        translateSpotifyToYoutube(url).then(youtubeUrl => {
-          fs.appendFileSync(outputfile, youtubeUrl + '\n');
-        });
-      } else if (isYoutubeUrl(url)) {
-        youtubeUrl = url;
-        fs.appendFileSync(outputfile, youtubeUrl + '\n');
-      } else {
-        console.log('Not a valid URL: ' + url);
-      }
-  })
-  .on('error', function(error) {
-    // something went wrong
-    console.log(error);
-    return error;
-  });
-
-}
 
 module.exports = {
-  translateSpotifyToYoutube, translateFile
+  spotifyToYoutube
 }
