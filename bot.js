@@ -6,7 +6,7 @@
 const fs = require('fs');
 const { App } = require("@slack/bolt");
 require("dotenv").config();
-require ('./variables.js');
+const { youtubeRegex, spotifyRegex } = require ('./variables.js');
 
 // Initializes your app with credentials
 const app = new App({
