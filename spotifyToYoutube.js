@@ -11,31 +11,34 @@ require ('./variables.js');
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 
-var spotifyApi = new spotifyWebApi({
+const spotifyApi = new spotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET
 });
 
 // Retrieve an access token.
-spotifyApi.clientCredentialsGrant().then(
-  function(data) {
-    console.log('The access token expires in ' + data.body['expires_in']);
-    console.log('The access token is ' + data.body['access_token']);
+async function getAccessToken() 
+{
+  spotifyApi.clientCredentialsGrant().then(
+    function(data) {
+      console.log('The access token expires in ' + data.body['expires_in']);
+      console.log('The access token is ' + data.body['access_token']);
 
-    // Save the access token so that it's used in future calls
-    spotifyApi.setAccessToken(data.body['access_token']);
-  },
-  function(err) {
-    console.log('Something went wrong when retrieving an access token', err);
-  }
-);
+      // Save the access token so that it's used in future calls
+      spotifyApi.setAccessToken(data.body['access_token']);
+    },
+    function(err) {
+      console.log('Something went wrong when retrieving an access token', err);
+    }
+  );
+}
 
 /**
  * Translate a Spotify URL to a YouTube URL.
  * @param {string} spotifyUrl - URL of the song on Spotify
  * @returns {string} URL of the song on YouTube
  */
-function translateSpotifyToYoutube(spotifyUrl) {
+async function translateSpotifyToYoutube(spotifyUrl) {
     // Now get the artist and title of the song on spotify
     getTrackInfo(spotifyUrl).then(response => {
         const artist = response.artists[0].name;
@@ -47,7 +50,8 @@ function translateSpotifyToYoutube(spotifyUrl) {
           console.log(r);
           const videos = r.videos.slice( 0, 1 );
           youtubeUrl = videos[0].url;
-          console.log(youtubeUrl);          
+          console.log(youtubeUrl);    
+
           return youtubeUrl;   
         });     
     });
@@ -67,29 +71,41 @@ function isYoutubeUrl(url) {
   return youtubeRegex.test(url);
 }
 
-function translateFile(inputfile, outputfile)
+async function translateFile(inputfile, outputfile)
 {
-  // run through the file, get the spotify tracks and translate them. save them in another file
-  fs.readFile(inputfile, 'utf8', (err, url) => {
-    var youtubeUrl = '';
+  await getAccessToken();
 
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(url);
+  return new Promise((resolve, reject) => {
+    // run through the file, get the spotify tracks and translate them. save them in another file
+    fs.readFile(inputfile, 'utf8', async (err, url) => {
+      try {
+        console.log(url);
+        url = url.trim();
+        var youtubeUrl = '';
 
-      if (isSpotifyUrl(url)) {
-        youtubeUrl = translateSpotifyToYoutube(url);
-      } else if (isYoutubeUrl(url)) {
-        youtubeUrl = url;
-      } else {
-        console.log('Not a valid URL: ' + url);
+        if (err) {
+          console.log(err);
+          reject(err);
+          return;
+        } 
+
+        if (isSpotifyUrl(url)) {
+          youtubeUrl = await translateSpotifyToYoutube(url);
+        } else if (isYoutubeUrl(url)) {
+          youtubeUrl = url;
+        } else {
+          console.log('Not a valid URL: ' + url);
+        }
+
+        if (youtubeUrl != '') {
+          fs.appendFileSync(outputfile, youtubeUrl + '\n');
+        }
+        resolve(youtubeUrl);
+               
+      } catch (error) {
+        reject(error);
       }
-
-      if (youtubeUrl != '') {
-        fs.appendFileSync(outputfile, youtubeUrl + '\n');
-      }
-    }           
+    });
   });
 }
 
