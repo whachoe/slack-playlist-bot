@@ -58,5 +58,5 @@ async function youtubeToSpotify(videoUrl) {
 }
 
 module.exports = {
-  youtubeToSpotify, translateFile
+  youtubeToSpotify
 };
