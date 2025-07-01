@@ -11,7 +11,7 @@ const client = new WebClient(process.env.SLACK_BOT_TOKEN, {
 async function getChannelHistory(channelId, next_cursor = null) {
   var options = {
     channel: channelId,
-    limit: 2
+    limit: 200
   }
 
   if (next_cursor) {
@@ -33,16 +33,18 @@ function saveMessages(response)
     if ( yt ) {
       // console.log(yt[0]);
       url = yt[0];
+      // Save them to a file
+      fs.appendFileSync(all_playlist, url + '\n');
     }
 
     const spot = message.text.match(spotifyRegex);
     if (spot) {
       // console.log(spot[0]);
       url = spot[0];
+      // Save them to a file
+      fs.appendFileSync(all_playlist, url + '\n');
     }
 
-    // Save them to a file
-    fs.appendFileSync(all_playlist, url + '\n');
   });
 
   // Get next page
